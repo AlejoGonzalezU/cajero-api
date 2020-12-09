@@ -20,13 +20,15 @@ api.add_middleware(
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
 )
 
+message = "El usuario no existe"
+
 @api.post("/user/auth/")
 async def auth_user(user_in: UserIn):
 
     user_in_db = get_user(user_in.username)
 
     if user_in_db == None:
-        raise HTTPException(status_code=404, detail="El usuario no existe")
+        raise HTTPException(status_code=404, detail=message)
 
     if user_in_db.password != user_in.password:
         return  {"Autenticado": False}
@@ -40,7 +42,7 @@ async def get_balance(username: str):
     user_in_db = get_user(username)
 
     if user_in_db == None:
-        raise HTTPException(status_code=404, detail="El usuario no existe")
+        raise HTTPException(status_code=404, detail=message)
 
     user_out = UserOut(**user_in_db.dict())
 
@@ -53,7 +55,7 @@ async def make_transaction(transaction_in: TransactionIn):
     user_in_db = get_user(transaction_in.username)
 
     if user_in_db == None:
-        raise HTTPException(status_code=404, detail="El usuario no existe")
+        raise HTTPException(status_code=404, detail=message)
 
     if user_in_db.balance < transaction_in.value:
         raise HTTPException(status_code=400, detail="No se tienen los fondos suficientes")
